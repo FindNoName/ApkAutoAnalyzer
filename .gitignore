@@ -4,6 +4,7 @@ target/
 # Analysis output directories
 output/
 sootOutput/
+apks/
 
 # IDE files
 .idea/
