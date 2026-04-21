@@ -1,4 +1,99 @@
-# MalDroid Analyzer
+# ApkAnalyzer
+
+ApkAnalyzer is a static analysis tool for Android APKs aimed at malware detection research. It extracts call graph metrics, permission-based features, and GLCM texture features to produce a feature dataset suitable for machine learning.
+
+## Modules
+
+| Module | Description |
+|------|------|
+| Call Graph Analysis | Build a method call graph based on FlowDroid/Soot and compute cohesion and coupling metrics |
+| Permission Analysis | Extract permissions from the APK Manifest and compute permission count, group count, and dangerous-permission ratio |
+| GLCM Feature Extraction | Visualize DEX bytecode as grayscale images and extract texture features such as contrast and correlation |
+| Excel Report | Write all features to an Excel file; supports resuming by skipping APKs that were already analyzed |
+| Call Graph Export | Export call graphs in GEXF format for visualization with tools like Gephi |
+
+## Requirements
+
+- Java 8+
+- Maven 3.6+
+- Android SDK (requires the `platforms/` directory)
+
+## Build
+
+```bash
+mvn clean package -DskipTests
+```
+
+## Usage
+
+```bash
+java -jar target/apkanalyzer-1.0-SNAPSHOT.jar \
+  <apkFolder> \
+  <excelOutput> \
+  <androidPlatforms> \
+  <gexfOutputDir>
+```
+
+### Arguments
+
+| Argument | Description | Default |
+|------|------|--------|
+| `apkFolder` | Folder path containing APK files to analyze | `apks/` |
+| `excelOutput` | Output Excel file path | `output/results.xlsx` |
+| `androidPlatforms` | Android SDK platforms directory | `$ANDROID_HOME/platforms` |
+| `gexfOutputDir` | Output directory for call graph GEXF files | `output/callgraphs/` |
+
+### Examples
+
+```bash
+# Use default values (requires ANDROID_HOME to be set)
+java -jar target/apkanalyzer-1.0-SNAPSHOT.jar apks/
+
+# Specify all arguments
+java -jar target/apkanalyzer-1.0-SNAPSHOT.jar \
+  /data/apks \
+  /data/results.xlsx \
+  /opt/android-sdk/platforms \
+  /data/callgraphs
+```
+
+## Output
+
+Each row in the Excel file corresponds to one APK and contains:
+
+- APK name
+- Cohesion
+- Direct Coupling
+- Indirect Coupling
+- Permission count, permission group count, dangerous-permission ratio
+- GLCM features: contrast, dissimilarity, homogeneity, energy, correlation, ASM
+
+## Dependencies
+
+- [FlowDroid](https://github.com/secure-software-engineering/FlowDroid) 2.12.0 — Android taint analysis
+- [Apache POI](https://poi.apache.org/) 5.0.0 — Excel read/write
+- [apk-parser](https://github.com/hsiafan/apk-parser) 2.6.10 — APK Manifest parsing
+- [gexf4j](https://github.com/francesco-ficarola/gexf4j) 1.0.0 — Call graph export
+
+## Project Structure
+
+```
+analyzer-core/
+├── src/main/java/org/maldroid/
+│   ├── MalDroidAnalyzer.java       # Main entry; batch process APKs
+│   ├── CallGraphAnalyzer.java      # Call graph analysis
+│   ├── PermissionAnalyzer.java     # Permission analysis
+│   ├── GlcmFeatureExtractor.java   # GLCM feature extraction
+│   ├── ExcelReportWriter.java      # Excel report generation
+│   └── CGExporter.java             # Call graph GEXF export
+├── src/main/resources/
+│   └── AndroidCallbacks.txt        # Android callback list
+└── pom.xml
+```
+
+---
+
+# ApkAnalyzer
 
 Android APK 静态分析工具，用于恶意软件检测研究。通过提取调用图指标、权限特征和 GLCM 纹理特征，生成可用于机器学习训练的特征数据集。
 
@@ -27,7 +122,7 @@ mvn clean package -DskipTests
 ## 使用方法
 
 ```bash
-java -jar target/maldroid-analyzer-1.0-SNAPSHOT.jar \
+java -jar target/apkanalyzer-1.0-SNAPSHOT.jar \
   <apkFolder> \
   <excelOutput> \
   <androidPlatforms> \
@@ -47,10 +142,10 @@ java -jar target/maldroid-analyzer-1.0-SNAPSHOT.jar \
 
 ```bash
 # 使用默认值（需设置 ANDROID_HOME 环境变量）
-java -jar target/maldroid-analyzer-1.0-SNAPSHOT.jar apks/
+java -jar target/apkanalyzer-1.0-SNAPSHOT.jar apks/
 
 # 指定所有参数
-java -jar target/maldroid-analyzer-1.0-SNAPSHOT.jar \
+java -jar target/apkanalyzer-1.0-SNAPSHOT.jar \
   /data/apks \
   /data/results.xlsx \
   /opt/android-sdk/platforms \
